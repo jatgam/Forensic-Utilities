@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# jatgamADS.py
+# guitest.py
 # Version: 0.0.1
 # By: Shawn Silva (shawn at jatgam dot com)
 # 

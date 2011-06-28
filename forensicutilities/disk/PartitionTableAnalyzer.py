@@ -34,30 +34,36 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #                               TODO                              #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#  - A lot.
+#  - Locate and Parse Extended Partitions.
+#  - Compute Sector Size Instead of requesting user input.
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                             CHANGELOG                           #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 06/23/2011        v0.1.0 - Initial creation.
+# 06/23/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 import binascii
+from forensicutilities.math.conversions import *
 
 PARTITION1 = 446, 461
 PARTITION2 = 462, 477
 PARTITION3 = 478, 493
 PARTITION4 = 494, 509
 
-PARTITIONTYPES = {"00" : "Empty", "01" : "FAT12, CHS", "04" : "FAT16, 16-32 MB, CHS", "05" : "Microsoft Extended, CHS",
-                    "06" : "FAT16, 32 MB-2GB, CHS", "07" : "NTFS", "0B" : "FAT32, CHS", "0C" : "FAT32, LBA",
-                    "0E" : "FAT16, 32 MB-2GB, LBA", "0F" : "Microsoft Extended, LBA", "11" : "Hidden FAT12, CHS",
-                    "14" : "Hidden FAT16, 16-32 MB, CHS", "16" : "Hidden FAT16, 32 MB-2GB, CHS", "1B" : "Hidden FAT32, CHS",
-                    "1C" : "Hidden FAT32, LBA", "1E" : "Hidden FAT16, 32 MB-2GB, LBA", "42" : "Microsoft MBR. Dynamic Disk",
-                    "82" : "Solaris x86|Linux Swap", "83" : "Linux", "84" : "Hibernation", "85" : "Linux Extended",
-                    "86" : "NTFS Volume Set", "87" : "NTFS Volume Set", "A0" : "Hibernation", "A1" : "Hibernation",
-                    "A5" : "FreeBSD", "A6" : "OpenBSD", "A8" : "Mac OSX", "A9" : "NetBSD", "AB" : "Mac OSX Boot",
-                    "B7" : "BSDI", "B8" : "BSDI Swap", "EE" : "EFI GPT Disk", "EF" : "EFI System Partition",
-                    "FB" : "Vmware File System", "FC" : "Vmware Swap"}
+PARTITIONTYPES = {"00" : "Empty", "01" : "FAT12, CHS", "02" : "XENIX root", "03" : "XENIX /usr", "04" : "FAT16, 16-32 MB, CHS", 
+                    "05" : "Microsoft Extended, CHS", "06" : "FAT16, 32 MB-2GB, CHS", "07" : "NTFS", "0B" : "FAT32, CHS", 
+                    "0C" : "FAT32, LBA", "0E" : "FAT16, 32 MB-2GB, LBA", "0F" : "Microsoft Extended, LBA", "11" : "Hidden FAT12, CHS",
+                    "12" : "Configuration/Diagnostics", "14" : "Hidden FAT16, 16-32 MB, CHS", "16" : "Hidden FAT16, 32 MB-2GB, CHS", 
+                    "1B" : "Hidden FAT32, CHS", "1C" : "Hidden FAT32, LBA", "1E" : "Hidden FAT16, 32 MB-2GB, LBA", "27" : "PQservice/Rescue Partition",
+                    "42" : "Microsoft MBR. Dynamic Disk", "51" : "Novell", "63" : "Unix System V", "64" : "Novell Netware 286, 2.xx",
+                    "65" : "Novell Netware 386, 3.xx or 4.xx", "66" : "Novell Netware SMS", "67" : "Novell", "68" : "Novell",
+                    "69" : "Novell Netware 5+, Novell Netware NSS", "80" : "MINIX until 1.4a", "81" : "MINIX since 1.4b|Early Linux",
+                    "82" : "Solaris x86|Linux Swap", "83" : "Linux", "84" : "Hibernation", "85" : "Linux Extended", "86" : "FAT16 Volume Set", 
+                    "87" : "NTFS Volume Set", "8E" : "Linux LVM", "9F" : "BSD/OS", "A0" : "Hibernation", "A1" : "Hibernation", "A5" : "FreeBSD", 
+                    "A6" : "OpenBSD", "A8" : "Mac OSX", "A9" : "NetBSD", "AB" : "Mac OSX Boot", "B7" : "BSDI", "B8" : "BSDI Swap", 
+                    "BC" : "Acronis Backup", "BE" : "Solaris 8 Boot", "BF" : "New Solaris x86", "DE" : "Dell PowerEdge Server Utilities",
+                    "E8" : "LUKS", "EB" : "BeOS BFS", "EC" : "SkyOS SkyFS", "EE" : "EFI GPT Disk", "EF" : "EFI System Partition",
+                    "FB" : "Vmware File System", "FC" : "Vmware Swap", "FD" : "Linux Raid Partition", "FE" : "Old Linux LVM"}
 
 
 class PartitionTableAnalyzer:
@@ -66,6 +72,7 @@ class PartitionTableAnalyzer:
         self.sectorsize = sectorsize
         self.MBRdata = self.__readMBR(self.disk, self.sectorsize)
         self.MBRhexlist = self.__listifyMBR(self.MBRdata)
+        self.partitions = self.__primaryPartitionParse(self.MBRhexlist)
     
     #def __determineSectorSize(self):
     
@@ -81,6 +88,25 @@ class PartitionTableAnalyzer:
         for byte in MBRdata:
             MBRhexlist.append(binascii.hexlify(byte).upper())
         return MBRhexlist
+    
+    def __primaryPartitionParse(self, MBRhexlist):
+        partitions = []
+        
+        return
+        
+    def __printPartitionTable(self, byterange, partitionnum):
+        print "-" * 77
+        print "PARTITION TABLE: PARTITION " + partitionnum + ": MBR Byte Range = " + str(byterange[0]) + "-" + str(byterange[1])
+        print "-" * 77
+        print " ".join(self.MBRhexlist[byterange[0]:byterange[1]+1])
+        print "." * 77
+        print "Bootable Flag:\t\t" + self.MBRhexlist[byterange[0]]
+        print "Starting CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+1:byterange[0]+3+1])
+        print "Partition Type:\t\t" + self.MBRhexlist[byterange[0]+4] + " - " + PARTITIONTYPES[self.MBRhexlist[byterange[0]+4]]
+        print "Ending CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+5:byterange[0]+7+1])
+        print "Starting LBA Address:\t" + " ".join(self.MBRhexlist[byterange[0]+8:byterange[0]+11+1])
+        print "Size in Sectors:\t" + " ".join(self.MBRhexlist[byterange[0]+12:byterange[0]+15+1])
+        return
     
     def printMBR(self):
         numlines = self.sectorsize / 16
@@ -98,21 +124,7 @@ class PartitionTableAnalyzer:
                     asciidata += "."
             print offset + " | " + hexdata + " | " + asciidata
         print "-" * 77
-    
-    def __printPartitionTable(self, byterange, partitionnum):
-        print "-" * 77
-        print "PARTITION TABLE: PARTITION " + partitionnum + ": MBR Byte Range = " + str(byterange[0]) + "-" + str(byterange[1])
-        print "-" * 77
-        print " ".join(self.MBRhexlist[byterange[0]:byterange[1]+1])
-        print "." * 77
-        print "Bootable Flag:\t\t" + self.MBRhexlist[byterange[0]]
-        print "Starting CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+1:byterange[0]+3+1])
-        print "Partition Type:\t\t" + self.MBRhexlist[byterange[0]+4] + " - " + PARTITIONTYPES[self.MBRhexlist[byterange[0]+4]]
-        print "Ending CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+5:byterange[0]+7+1])
-        print "Starting LBA Address:\t" + " ".join(self.MBRhexlist[byterange[0]+8:byterange[0]+11+1])
-        print "Size in Sectors:\t" + " ".join(self.MBRhexlist[byterange[0]+12:byterange[0]+15+1])
-        return
-    
+        
     def printAllParts(self):
         """
         0-0 Bootable Flag
@@ -129,10 +141,3 @@ class PartitionTableAnalyzer:
 
     
     #def listAllNTFSParts(self):
-    
-
-    
-if __name__ == "__main__":
-    table = PartitionTableAnalyzer(r"\\.\PhysicalDrive0", 512)
-    table.printMBR()
-    table.printAllParts()

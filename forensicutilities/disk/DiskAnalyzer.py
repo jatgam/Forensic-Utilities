@@ -42,11 +42,15 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 import platform
 
-class DiskAnalyzer:
+class PhysicalDiskAnalyzer:
     def __init__(self):
         self.ostype = platform.system()
-        
-        return
+        if self.ostype == "Windows":
+            self.disks = self.windowsListPhysicalDisks()
+        elif self.ostype == "Linux":
+            self.disks = self.linuxListPhysicalDisks()
+        else:
+            return -1
 
     def windowsListPhysicalDisks(self):
         physicalDriveList = []
@@ -57,8 +61,11 @@ class DiskAnalyzer:
                 physicalDriveList.append(driveprefix+str(i))
             except:
                 pass
-        print physicalDriveList
+        return physicalDriveList
         
     def linuxListPhysicalDisks(self):
         return
         
+class ImageDiskAnalyzer:
+    def __init__(self, image):
+        return

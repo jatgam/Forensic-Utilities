@@ -14,7 +14,7 @@
 #
 # 
 # REQUIREMENTS:
-# Python 2.7.x
+# Python 3.2.x
 # 
 # Copyright (C) 2011  Shawn Silva
 # -------------------------------
@@ -42,7 +42,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # 06/23/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-import binascii
+#import binascii
 from forensicutilities.math.conversions import *
 
 PARTITION1 = 446, 461
@@ -86,7 +86,7 @@ class PartitionTableAnalyzer:
     def __listifyMBR(self, MBRdata):
         MBRhexlist = []
         for byte in MBRdata:
-            MBRhexlist.append(binascii.hexlify(byte).upper())
+            MBRhexlist.append("%0.2X" % byte)
         return MBRhexlist
     
     def __primaryPartitionParse(self, MBRhexlist):
@@ -95,35 +95,36 @@ class PartitionTableAnalyzer:
         return
         
     def __printPartitionTable(self, byterange, partitionnum):
-        print "-" * 77
-        print "PARTITION TABLE: PARTITION " + partitionnum + ": MBR Byte Range = " + str(byterange[0]) + "-" + str(byterange[1])
-        print "-" * 77
-        print " ".join(self.MBRhexlist[byterange[0]:byterange[1]+1])
-        print "." * 77
-        print "Bootable Flag:\t\t" + self.MBRhexlist[byterange[0]]
-        print "Starting CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+1:byterange[0]+3+1])
-        print "Partition Type:\t\t" + self.MBRhexlist[byterange[0]+4] + " - " + PARTITIONTYPES[self.MBRhexlist[byterange[0]+4]]
-        print "Ending CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+5:byterange[0]+7+1])
-        print "Starting LBA Address:\t" + " ".join(self.MBRhexlist[byterange[0]+8:byterange[0]+11+1])
-        print "Size in Sectors:\t" + " ".join(self.MBRhexlist[byterange[0]+12:byterange[0]+15+1])
+        print("-" * 77)
+        print("PARTITION TABLE: PARTITION " + partitionnum + ": MBR Byte Range = " + str(byterange[0]) + "-" + str(byterange[1]))
+        print("-" * 77)
+        print(" ".join(self.MBRhexlist[byterange[0]:byterange[1]+1]))
+        print("." * 77)
+        print("Bootable Flag:\t\t" + self.MBRhexlist[byterange[0]])
+        print("Starting CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+1:byterange[0]+3+1]))
+        print("Partition Type:\t\t" + self.MBRhexlist[byterange[0]+4] + " - " + PARTITIONTYPES[self.MBRhexlist[byterange[0]+4]])
+        print("Ending CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+5:byterange[0]+7+1]))
+        print("Starting LBA Address:\t" + " ".join(self.MBRhexlist[byterange[0]+8:byterange[0]+11+1]))
+        print("Size in Sectors:\t" + " ".join(self.MBRhexlist[byterange[0]+12:byterange[0]+15+1]))
         return
     
     def printMBR(self):
         numlines = self.sectorsize / 16
-        print "-" * 77
-        print "Master Boot Record: SECTOR 0"
-        print "-" * 77
-        for line in range(numlines):
+        print("-" * 77)
+        print("Master Boot Record: SECTOR 0")
+        print("-" * 77)
+        for line in range(int(numlines)):
             asciidata = ""
             offset = hex(line+0*32)[2:].upper().zfill(7)[-7:] + '0'
             hexdata = " ".join(self.MBRhexlist[line*16:(line+1)*16])
             for byte in self.MBRhexlist[line*16:(line+1)*16]:
-                if len(repr(chr(int(byte, 16)))) == 3 or int(byte, 16) == ord('\\'):
+                #if len(repr(chr(int(byte, 16)))) == 3 or int(byte, 16) == ord('\\'):
+                if int(byte, 16) >= 32 and int(byte, 16) <= 126:
                     asciidata += chr(int(byte, 16))
                 else:
                     asciidata += "."
-            print offset + " | " + hexdata + " | " + asciidata
-        print "-" * 77
+            print(offset + " | " + hexdata + " | " + asciidata)
+        print("-" * 77)
         
     def printAllParts(self):
         """

@@ -13,7 +13,7 @@
 #
 # 
 # REQUIREMENTS:
-# Python 2.7.x
+# Python 3.2.x
 # 
 # Copyright (C) 2011  Shawn Silva
 # -------------------------------
@@ -63,7 +63,7 @@ class DecimalUtilities:
         
     def toBinaryStr(self):
         binarystr = ""
-        for i in reversed(range(8)):
+        for i in reversed(list(range(8))):
             binarystr += str((num & (1 << i)) and 1)
         return binarystr
 

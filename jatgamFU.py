@@ -14,7 +14,7 @@
 #
 # 
 # REQUIREMENTS:
-# Python 2.7.x
+# Python 3.2.x
 # 
 # Copyright (C) 2011  Shawn Silva
 # -------------------------------

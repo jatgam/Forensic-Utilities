@@ -13,7 +13,7 @@
 #
 # 
 # REQUIREMENTS:
-# Python 2.7.x
+# Python 3.2.x
 # 
 # Copyright (C) 2011  Shawn Silva
 # -------------------------------
@@ -42,23 +42,30 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 import platform
 
-class DiskAnalyzer:
+class PhysicalDiskAnalyzer:
     def __init__(self):
         self.ostype = platform.system()
-        
-        return
+        if self.ostype == "Windows":
+            self.disks = self.windowsListPhysicalDisks()
+        elif self.ostype == "Linux":
+            self.disks = self.linuxListPhysicalDisks()
+        else:
+            return -1
 
     def windowsListPhysicalDisks(self):
         physicalDriveList = []
         driveprefix=r"\\.\PhysicalDrive"
         for i in range(0,64):
             try:
-                drive = file(driveprefix+str(i))
+                drive = open(driveprefix+str(i))
                 physicalDriveList.append(driveprefix+str(i))
             except:
                 pass
-        print physicalDriveList
+        return physicalDriveList
         
     def linuxListPhysicalDisks(self):
         return
         
+class ImageDiskAnalyzer:
+    def __init__(self, image):
+        return

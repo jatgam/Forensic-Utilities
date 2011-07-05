@@ -35,7 +35,7 @@
 #                               TODO                              #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #  - Locate and Parse Extended Partitions.
-#  - Compute Sector Size Instead of requesting user input.
+# 
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                             CHANGELOG                           #

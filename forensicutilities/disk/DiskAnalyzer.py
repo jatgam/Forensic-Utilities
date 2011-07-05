@@ -33,7 +33,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #                               TODO                              #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#  - 
+#   - Compute Sector Size Instead of requesting user input. 
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                             CHANGELOG                           #

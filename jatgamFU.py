@@ -42,8 +42,13 @@
 # 06/27/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 from forensicutilities.disk.PartitionTableAnalyzer import *
+from forensicutilities.windows.ioctl.DeviceIoControl import DeviceIoControl
 
 if __name__ == "__main__":
-    table = PartitionTableAnalyzer(r"\\.\PhysicalDrive0", 512)
+    device = DeviceIoControl(r"\\.\PhysicalDrive0")
+    devicegeo = device.GetDriveGeometry()
+    
+
+    table = PartitionTableAnalyzer(r"\\.\PhysicalDrive0", devicegeo["BytesPerSector"])
     table.printMBR()
     table.printAllParts()

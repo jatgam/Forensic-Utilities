@@ -33,7 +33,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #                               TODO                              #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   - Compute Sector Size Instead of requesting user input. 
+#   - 
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                             CHANGELOG                           #
@@ -41,29 +41,30 @@
 # 06/27/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 import platform
+from forensicutilities.windows.ioctl.DeviceIoControl import DeviceIoControl
 
 class PhysicalDiskAnalyzer:
     def __init__(self):
         self.ostype = platform.system()
         if self.ostype == "Windows":
-            self.disks = self.windowsListPhysicalDisks()
+            self.disks = self.__windowsListPhysicalDisks()
         elif self.ostype == "Linux":
-            self.disks = self.linuxListPhysicalDisks()
+            self.disks = self.__linuxListPhysicalDisks()
         else:
             return -1
 
-    def windowsListPhysicalDisks(self):
+    def __windowsListPhysicalDisks(self):
         physicalDriveList = []
         driveprefix=r"\\.\PhysicalDrive"
         for i in range(0,64):
             try:
                 drive = open(driveprefix+str(i))
-                physicalDriveList.append(driveprefix+str(i))
+                physicalDriveList.append([driveprefix+str(i), DeviceIoControl(driveprefix+str(i)).GetDriveGeometry()])
             except:
                 pass
         return physicalDriveList
         
-    def linuxListPhysicalDisks(self):
+    def __linuxListPhysicalDisks(self):
         return
         
 class ImageDiskAnalyzer:

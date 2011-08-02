@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# guitest.py
+# gui.py
 # Version: 0.0.1
 # By: Shawn Silva (shawn at jatgam dot com)
 # 
@@ -36,59 +36,59 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                             CHANGELOG                           #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 06/13/2011        v0.1.0 - Initial script creation.
+# 06/13/2011        v0.0.1 - Initial script creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 import os
-import tkinter, tkinter.filedialog, tkinter.messagebox, tkinter.constants
+from tkinter import *
+from forensicutilities.gui import FocusedDialog
 
-class ADSApp:
+class JatgamFUgui:
     def __init__(self, root):
-        
-        
-        menubar = tkinter.Menu(root)
-        filemenu = tkinter.Menu(menubar, tearoff=0, takefocus=0)
+        self.root = root
+        menubar = Menu(self.root)
+        filemenu = Menu(menubar, tearoff=0, takefocus=0)
         filemenu.add_command(label="Open .img (dd)", command=self.__openDDImg)
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=root.quit)
+        filemenu.add_command(label="Exit", command=self.root.quit)
         menubar.add_cascade(label="File", menu=filemenu)
         
-        editmenu = tkinter.Menu(menubar, tearoff=0, takefocus=0)
+        editmenu = Menu(menubar, tearoff=0, takefocus=0)
         editmenu.add_command(label="Copy", command=self.__copy)
         editmenu.add_command(label="Cut", command=self.__cut)
         editmenu.add_command(label="Paste", command=self.__paste)
         menubar.add_cascade(label="Edit", menu=editmenu)
         
-        helpmenu = tkinter.Menu(menubar, tearoff=0, takefocus=0)
+        helpmenu = Menu(menubar, tearoff=0, takefocus=0)
         helpmenu.add_command(label="About", command=self.__displayAbout)
         menubar.add_cascade(label="Help", menu=helpmenu)
         
-        root.config(menu=menubar)
+        self.root.config(menu=menubar)
         
-        toolbar = tkinter.Frame(root)
+        toolbar = Frame(self.root)
 
-        b = tkinter.Button(toolbar, text="new", width=6, command=self.__callback)
-        b.pack(side=tkinter.LEFT, padx=2, pady=2)
+        b = Button(toolbar, text="new", width=6, command=self.__callback)
+        b.pack(side=LEFT, padx=2, pady=2)
 
-        b = tkinter.Button(toolbar, text="open", width=6, command=self.__callback)
-        b.pack(side=tkinter.LEFT, padx=2, pady=2)
+        b = Button(toolbar, text="open", width=6, command=self.__callback)
+        b.pack(side=LEFT, padx=2, pady=2)
 
-        toolbar.pack(side=tkinter.TOP, fill=tkinter.X)
+        toolbar.pack(side=TOP, fill=X)
 
 
-        frame = tkinter.Frame(root)
+        frame = Frame(self.root)
         frame.pack()
                 
-        self.t = tkinter.Text(frame, height=10, width=100)
+        self.t = Text(frame, height=10, width=100)
         self.t.pack()
 
         
-        statusFrame = tkinter.Frame(root)
-        statusFrame.pack(side=tkinter.BOTTOM, anchor=tkinter.W)
+        statusFrame = Frame(self.root)
+        statusFrame.pack(side=BOTTOM, anchor=W)
         status = StatusBar(statusFrame, 10)
-        status.pack(side=tkinter.LEFT, fill=tkinter.X)
+        status.pack(side=LEFT, fill=X)
         status.set("test")
         status1 = StatusBar(statusFrame, 10)
-        status1.pack(side=tkinter.LEFT, fill=tkinter.X)
+        status1.pack(side=LEFT, fill=X)
         status1.set("test1")
     
     def __callback(self):
@@ -98,36 +98,40 @@ class ADSApp:
         return
 
     def __displayAbout(self):
+        # aboutwin = Toplevel()
+        # aboutwin.title('About JatgamFU')
+        AboutDialog(self.root,"About Jatgam Forensic Utilities")
+        
         return
     
     def __copy(self):
-        if not self.t.tag_ranges(tkinter.SEL):
+        if not self.t.tag_ranges(SEL):
             pass
         else:
             self.t.clipboard_clear()
-            text = self.t.get(tkinter.SEL_FIRST, tkinter.SEL_LAST)
+            text = self.t.get(SEL_FIRST, SEL_LAST)
             self.t.clipboard_append(text)
     def __cut(self):
-        if not self.t.tag_ranges(tkinter.SEL):
+        if not self.t.tag_ranges(SEL):
             pass
         else:
             self.__copy()
-            self.t.delete(tkinter.SEL_FIRST, tkinter.SEL_LAST)
+            self.t.delete(SEL_FIRST, SEL_LAST)
     def __paste(self):
         try:
             text = self.t.selection_get(selection='CLIPBOARD')
         except:
             return
-        self.t.insert(tkinter.INSERT, text)
-        self.t.tag_remove(tkinter.SEL, '1.0', tkinter.END)
-        self.t.tag_add(tkinter.SEL, tkinter.INSERT+'-%dc' % len(text), tkinter.INSERT)
-        self.t.see(tkinter.INSERT)
+        self.t.insert(INSERT, text)
+        self.t.tag_remove(SEL, '1.0', END)
+        self.t.tag_add(SEL, INSERT+'-%dc' % len(text), INSERT)
+        self.t.see(INSERT)
         
-class StatusBar(tkinter.Frame):
+class StatusBar(Frame):
     def __init__(self, master, width):
-        tkinter.Frame.__init__(self, master)
-        self.label = tkinter.Label(self, bd=1, relief=tkinter.SUNKEN, anchor=tkinter.W, width=width)
-        self.label.pack(fill=tkinter.X)
+        Frame.__init__(self, master)
+        self.label = Label(self, bd=1, relief=SUNKEN, anchor=W, width=width)
+        self.label.pack(fill=X)
 
     def set(self, format, *args):
         self.label.config(text=format % args)
@@ -137,27 +141,26 @@ class StatusBar(tkinter.Frame):
         self.label.config(text="")
         self.label.update_idletasks()
 
-def listPhysicalDisks():
-    physicalDriveList = []
-    driveprefix=r"\\.\PhysicalDrive"
-    for i in range(64):
-        try:
-            drive = open(driveprefix+str(i))
-            physicalDriveList.append(driveprefix+str(i))
-        except:
-            pass
-    print(physicalDriveList)
-
+class AboutDialog(FocusedDialog.FocusedDialog):
+    def body(self, master):
+        pass
         
-def gui_main():
-    root = tkinter.Tk()
-    root.title('Jatgam Alternate Data Streams')
+    def buttonbox(self):
+        box = Frame(self)
+        w = Button(box, text="Close", width=10, command=self.cancel, default=ACTIVE)
+        w.pack(side=LEFT, padx=5, pady=5)
+        self.bind("<Return>", self.cancel)
+        self.bind("<Escape>", self.cancel)
+        box.pack()
+        
+def run_gui():
+    root = Tk()
+    root.title('Jatgam Forensic Utilities')
     root.resizable(True, True)
-    root.minsize(300, 0)
-    ADSApp(root)
+    root.minsize(300, 300)
+    JatgamFUgui(root)
     root.mainloop()
     return 0
 
 if __name__ == '__main__':
-    gui_main()
-    listPhysicalDisks()
+    run_gui()

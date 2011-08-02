@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# jatgamFU.py
+# cli.py
 # Version: 0.0.1
 # By: Shawn Silva (shawn at jatgam dot com)
-# Jatgam Forensic Utilites
 # 
-# Created: 06/27/2011
-# Modified: 06/27/2011
+# Created: 06/13/2011
+# Modified: 06/13/2011
 # 
-# A collection of utilities to help gather information on digital
-# evidence.
 # -----------------------------------------------------------------
 #
 # 
@@ -39,29 +36,18 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                             CHANGELOG                           #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 06/27/2011        v0.0.1 - Initial creation.
+# 08/02/2011        v0.0.1 - Initial script creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-appversion = "0.0.1"
+from forensicutilities.disk.PartitionTableAnalyzer import *
+from forensicutilities.disk.DiskAnalyzer import PhysicalDiskAnalyzer
+from forensicutilities.windows.ioctl.DeviceIoControl import DeviceIoControl
 
-import argparse
-
-from forensicutilities import FUgui, FUcli
-
-
-def gui_main():
-    FUgui.run_gui()
-
-def cli_main():
-    FUcli.run_cli()
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(version=appversion, description="Jatgam Forensic Utilities")
+def run_cli():
+    device = DeviceIoControl(r"\\.\PhysicalDrive0")
+    devicegeo = device.GetDriveGeometry()
     
-    parser.add_argument('-G', action='store_false', default=True, dest='gui', help='Disable GUI and run in CLI mode')
-    
-    arguments = parser.parse_args()
-    
-    if arguments.gui:
-        gui_main()
-    else:
-        cli_main()
+    table = PartitionTableAnalyzer(r"\\.\PhysicalDrive0", devicegeo["BytesPerSector"])
+    table.printMBR()
+    table.printAllParts()
+    physicaldisk = PhysicalDiskAnalyzer()
+    print(physicaldisk.disks)

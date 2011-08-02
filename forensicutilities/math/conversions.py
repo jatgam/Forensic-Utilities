@@ -57,15 +57,15 @@ class HexUtilities:
         return ''.join(swapList)
         
 class DecimalUtilities:
-    def __init__(self, num):
-        self.num = num
-        return
-        
-    def toBinaryStr(self):
+    def toBinaryStr(num):
         binarystr = ""
         for i in reversed(list(range(8))):
             binarystr += str((num & (1 << i)) and 1)
         return binarystr
+        
+    def bytesToGB(bytes):
+        return bytes/1024/1024/1024
+        
 
 class BinaryNumUtilities:
     def __init__(self):

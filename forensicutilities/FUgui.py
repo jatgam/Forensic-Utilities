@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# gui.py
+# FUgui.py
 # Version: 0.0.1
 # By: Shawn Silva (shawn at jatgam dot com)
 # 
@@ -39,8 +39,14 @@
 # 06/13/2011        v0.0.1 - Initial script creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 import os
+
 from tkinter import *
+from tkinter import tix
+from tkinter.constants import *
+
 from forensicutilities.gui import FocusedDialog
+from forensicutilities.disk import DiskAnalyzer
+from forensicutilities.math.Conversions import *
 
 class JatgamFUgui:
     def __init__(self, root):
@@ -48,6 +54,7 @@ class JatgamFUgui:
         menubar = Menu(self.root)
         filemenu = Menu(menubar, tearoff=0, takefocus=0)
         filemenu.add_command(label="Open .img (dd)", command=self.__openDDImg)
+        filemenu.add_command(label="Open Physical Disk", command=self.__openDisk)
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.root.quit)
         menubar.add_cascade(label="File", menu=filemenu)
@@ -97,9 +104,10 @@ class JatgamFUgui:
     def __openDDImg(self):
         return
 
+    def __openDisk(self):
+        ChooseDevice(self.root, "Choose a disk drive...")
+        
     def __displayAbout(self):
-        # aboutwin = Toplevel()
-        # aboutwin.title('About JatgamFU')
         AboutDialog(self.root,"About Jatgam Forensic Utilities")
         
         return
@@ -143,7 +151,8 @@ class StatusBar(Frame):
 
 class AboutDialog(FocusedDialog.FocusedDialog):
     def body(self, master):
-        pass
+        aboutlabel = Label(master, text="Jatgam Forensic Utilities\nVersion 0.0.1\nCopyright 2011 Shawn Silva")
+        aboutlabel.pack()
         
     def buttonbox(self):
         box = Frame(self)
@@ -153,8 +162,64 @@ class AboutDialog(FocusedDialog.FocusedDialog):
         self.bind("<Escape>", self.cancel)
         box.pack()
         
+class ChooseDevice(FocusedDialog.FocusedDialog):
+    def __createEntryField(self, parent, caption, width=None, row=None, column=0, **options):
+        Label(parent, text=caption).grid(row=row, column=column, sticky=E)
+        entry = Entry(parent, **options)
+        if width:
+            entry.config(width=width)
+        entry.grid(row=row, column=column+1)
+        return entry
+    
+    def __updateDeviceInfo(self, device):
+        for d in self.disks:
+            if d["Disk"] == device:
+                self.vdiskpath.set(d["Disk"])
+                self.vsize.set("%.2f" % DecimalUtilities.bytesToGB(d["DiskSize"]))
+                self.vtpc.set(d["TracksPerCylinder"])
+                self.vcyl.set(d["Cylinders"])
+                self.vbps.set(d["BytesPerSector"])
+                self.vmtype.set(d["MediaType"])
+                self.vspt.set(d["SectorsPerTrack"])
+                return
+            else:
+                pass
+        return -1
+        
+    
+    def body(self, master):
+        self.disks = DiskAnalyzer.PhysicalDiskAnalyzer().disks
+        if self.disks == -1:
+            pass
+        else:
+            list = tix.ComboBox(master, label="Drive: ", command=self.__updateDeviceInfo, dropdown=1, editable=0, options='listbox.height 6 label.width 10 label.anchor e')
+            
+            list.pack(side=tix.TOP, anchor=tix.W)
+            
+            for d in self.disks:
+                list.insert(tix.END, d["Disk"])
+            
+            diskInfoFrame = Frame(master)
+            diskInfoFrame.pack()
+            
+            self.vdiskpath = StringVar()
+            self.vsize = StringVar()
+            self.vtpc = StringVar()
+            self.vcyl = StringVar()
+            self.vbps = StringVar()
+            self.vmtype = StringVar()
+            self.vspt = StringVar()
+            
+            diskpath = self.__createEntryField(diskInfoFrame, "Disk Path: ", row=0, state="readonly", textvariable=self.vdiskpath)
+            size = self.__createEntryField(diskInfoFrame, "Size in GB: ", row=1, state="readonly", textvariable=self.vsize)
+            tpc = self.__createEntryField(diskInfoFrame, "Tracks Per Cylinder: ", row=2, state="readonly", textvariable=self.vtpc)
+            cyl = self.__createEntryField(diskInfoFrame, "Cylinders: ", row=3, state="readonly", textvariable=self.vcyl)
+            bps = self.__createEntryField(diskInfoFrame, "Bytes Per Sector: ", row=4, state="readonly", textvariable=self.vbps)
+            mtype = self.__createEntryField(diskInfoFrame, "Media Type: ", row=5, state="readonly", textvariable=self.vmtype)
+            spt = self.__createEntryField(diskInfoFrame, "Sectors Per Track: ", row=6, state="readonly", textvariable=self.vspt)
+            
 def run_gui():
-    root = Tk()
+    root = tix.Tk()
     root.title('Jatgam Forensic Utilities')
     root.resizable(True, True)
     root.minsize(300, 300)

@@ -42,8 +42,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # 06/23/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#import binascii
-from forensicutilities.math.conversions import *
+from forensicutilities.math.Conversions import *
 
 PARTITION1 = 446, 461
 PARTITION2 = 462, 477
@@ -73,10 +72,7 @@ class PartitionTableAnalyzer:
         self.MBRdata = self.__readMBR(self.disk, self.sectorsize)
         self.MBRhexlist = self.__listifyMBR(self.MBRdata)
         self.partitions = self.__primaryPartitionParse(self.MBRhexlist)
-    
-    #def __determineSectorSize(self):
-    
-    
+        
     def __readMBR(self, disk, sectorsize):
         with open(disk, 'rb') as f:
             f.seek(0)
@@ -139,6 +135,3 @@ class PartitionTableAnalyzer:
         self.__printPartitionTable(PARTITION2, "2")
         self.__printPartitionTable(PARTITION3, "3")
         self.__printPartitionTable(PARTITION4, "4")
-
-    
-    #def listAllNTFSParts(self):

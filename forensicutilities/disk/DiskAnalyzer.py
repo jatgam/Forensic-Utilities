@@ -59,14 +59,16 @@ class PhysicalDiskAnalyzer:
         for i in range(0,64):
             try:
                 drive = open(driveprefix+str(i))
-                physicalDriveList.append([driveprefix+str(i), DeviceIoControl(driveprefix+str(i)).GetDriveGeometry()])
+                diskinfo = DeviceIoControl(driveprefix+str(i)).GetDriveGeometry()
+                diskinfo['Disk'] = driveprefix+str(i)
+                physicalDriveList.append(diskinfo)
             except:
                 pass
         return physicalDriveList
-        
+    
     def __linuxListPhysicalDisks(self):
-        return
-        
+        return -1
+    
 class ImageDiskAnalyzer:
     def __init__(self, image):
         return

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# FUcli.py
+# cli.py
 # Version: 0.0.1
 # By: Shawn Silva (shawn at jatgam dot com)
 # 

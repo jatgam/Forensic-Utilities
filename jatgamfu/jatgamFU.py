@@ -45,14 +45,15 @@ appversion = "0.0.1"
 
 import argparse
 
-from forensicutilities import FUgui, FUcli
+from forensicutilities.gui import gui
+from forensicutilities.cli import cli
 
 
 def gui_main():
-    FUgui.run_gui()
+    gui.run_gui()
 
 def cli_main():
-    FUcli.run_cli()
+    cli.run_cli()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(version=appversion, description="Jatgam Forensic Utilities")

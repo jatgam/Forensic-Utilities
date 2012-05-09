@@ -1,23 +1,23 @@
 #!/usr/bin/env python
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PartitionTableAnalyzer.py
-# Version: 0.0.1
+# Version: 0.0.2
 # By: Shawn Silva (shawn at jatgam dot com)
 # Part of Jatgam Forensic Utilites
 # 
 # Created: 06/23/2011
-# Modified: 06/23/2011
+# Modified: 05/09/2012
 # 
 # Will grab the first sector from physical disks and images and
 # parse out partition information.
-# -----------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #
 # 
 # REQUIREMENTS:
 # Python 3.2.x
 # 
-# Copyright (C) 2011  Shawn Silva
-# -------------------------------
+# Copyright (C) 2011-2012  Jatgam Technical Solutions
+# ---------------------------------------------------
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -31,25 +31,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-#                               TODO                              #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                    TODO                                     #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #  - Locate and Parse Extended Partitions.
+#  - Error Handling for Finding partition type when printing.
 # 
 # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                             CHANGELOG                           #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                  CHANGELOG                                  #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# 05/09/2012        v0.0.2 - Added code for extended partitions. Can't test
+#                       until I am on a machine that actually uses them.
 # 06/23/2011        v0.0.1 - Initial creation.
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 from forensicutilities.math.Conversions import *
 
 PARTITION1 = 446, 461
 PARTITION2 = 462, 477
 PARTITION3 = 478, 493
 PARTITION4 = 494, 509
+PARTITION_BYTE_RANGES = ((446, 461),(462, 477),(478, 493),(494, 509))
 
-PARTITIONTYPES = {"00" : "Empty", "01" : "FAT12, CHS", "02" : "XENIX root", "03" : "XENIX /usr", "04" : "FAT16, 16-32 MB, CHS", 
+PARTITION_TYPES = {"00" : "Empty", "01" : "FAT12, CHS", "02" : "XENIX root", "03" : "XENIX /usr", "04" : "FAT16, 16-32 MB, CHS", 
                     "05" : "Microsoft Extended, CHS", "06" : "FAT16, 32 MB-2GB, CHS", "07" : "NTFS", "0B" : "FAT32, CHS", 
                     "0C" : "FAT32, LBA", "0E" : "FAT16, 32 MB-2GB, LBA", "0F" : "Microsoft Extended, LBA", "11" : "Hidden FAT12, CHS",
                     "12" : "Configuration/Diagnostics", "14" : "Hidden FAT16, 16-32 MB, CHS", "16" : "Hidden FAT16, 32 MB-2GB, CHS", 
@@ -63,32 +67,61 @@ PARTITIONTYPES = {"00" : "Empty", "01" : "FAT12, CHS", "02" : "XENIX root", "03"
                     "BC" : "Acronis Backup", "BE" : "Solaris 8 Boot", "BF" : "New Solaris x86", "DE" : "Dell PowerEdge Server Utilities",
                     "E8" : "LUKS", "EB" : "BeOS BFS", "EC" : "SkyOS SkyFS", "EE" : "EFI GPT Disk", "EF" : "EFI System Partition",
                     "FB" : "Vmware File System", "FC" : "Vmware Swap", "FD" : "Linux Raid Partition", "FE" : "Old Linux LVM"}
-
+EXTND_PARTITION_TYPES = {"05" : "Microsoft Extended, CHS", "0F" : "Microsoft Extended, LBA", "85" : "Linux Extended"}
 
 class PartitionTableAnalyzer:
     def __init__(self, disk, sectorsize):
         self.disk = disk
         self.sectorsize = sectorsize
-        self.MBRdata = self.__readMBR(self.disk, self.sectorsize)
-        self.MBRhexlist = self.__listifyMBR(self.MBRdata)
-        self.partitions = self.__primaryPartitionParse(self.MBRhexlist)
+        self.MBRdata = self.__readSector(self.disk, self.sectorsize, 0)
+        self.MBRhexlist = self.__listifySector(self.MBRdata)
+        self.MBRpartitions = self.__partitionParse(self.MBRhexlist)
         
-    def __readMBR(self, disk, sectorsize):
+    def __readSector(self, disk, sectorsize, start):
         with open(disk, 'rb') as f:
-            f.seek(0)
-            MBRdata = f.read(sectorsize)
-        return MBRdata
+            f.seek(start*sectorsize)
+            sector = f.read(sectorsize)
+        return sector
     
-    def __listifyMBR(self, MBRdata):
-        MBRhexlist = []
-        for byte in MBRdata:
-            MBRhexlist.append("%0.2X" % byte)
-        return MBRhexlist
+    def __listifySector(self, sector):
+        sectorHexlist = []
+        for byte in sector:
+            sectorHexlist.append("%0.2X" % byte)
+        return sectorHexlist
     
-    def __primaryPartitionParse(self, MBRhexlist):
+    def __partitionParse(self, hexlist):
         partitions = []
+        for byterange in PARTITION_BYTE_RANGES:
+            partitions.append(hexlist[byterange[0]:byterange[1]+1])
+        return partitions
         
-        return
+    def __extendedPartitionParse(self, MBRpartitions):
+        extendedPartitions = []
+        for partition in MBRpartitions:
+            try:
+                EXTND_PARTITION_TYPES[partition[4]]
+                extendedPartitions.append(partition)
+            except:
+                pass
+        if extendedPartitions:
+            if len(extendedPartitions) > 1:
+                return -1
+            firstEBRstart = HexUtilities(extendedPartitions[0][8:11+1]).littleEndianToDecimal()
+            ebr = self.__readSector(self.disk, self.sectorsize, firstEBRstart)
+            while True:
+                ebrhexlist = self.__listifySector(ebr)
+                curextpart = self.__partitionParse(ebrhexlist)
+                if curextpart[0][4] != "00":
+                    extendedPartitions.append(curextpart[0])
+                else:
+                    return -1
+                if curextpart[1][4] != "00":
+                    extendedPartitions.append(curextpart[1])
+                    nextEBRstart = HexUtilities(curextpart[1][8:11+1]).littleEndianToDecimal()
+                    ebr = self.__readSector(self.disk, self.sectorsize, firstEBRstart+nextEBRstart)
+                else:
+                    break
+        return extendedPartitions
         
     def __printPartitionTable(self, byterange, partitionnum):
         print("-" * 77)
@@ -98,7 +131,7 @@ class PartitionTableAnalyzer:
         print("." * 77)
         print("Bootable Flag:\t\t" + self.MBRhexlist[byterange[0]])
         print("Starting CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+1:byterange[0]+3+1]))
-        print("Partition Type:\t\t" + self.MBRhexlist[byterange[0]+4] + " - " + PARTITIONTYPES[self.MBRhexlist[byterange[0]+4]])
+        print("Partition Type:\t\t" + self.MBRhexlist[byterange[0]+4] + " - " + PARTITION_TYPES[self.MBRhexlist[byterange[0]+4]])
         print("Ending CHS Address:\t" + " ".join(self.MBRhexlist[byterange[0]+5:byterange[0]+7+1]))
         print("Starting LBA Address:\t" + " ".join(self.MBRhexlist[byterange[0]+8:byterange[0]+11+1]))
         print("Size in Sectors:\t" + " ".join(self.MBRhexlist[byterange[0]+12:byterange[0]+15+1]))

@@ -58,8 +58,8 @@ class HexUtilities:
         return ''.join(swapList)
         
     def littleEndianToDecimal(self):
-        hex = self.swapEndianess()
-        return int(hex, 16)
+        hexs = self.swapEndianess()
+        return int(hexs, 16)
         
 class DecimalUtilities:
     def toBinaryStr(num):

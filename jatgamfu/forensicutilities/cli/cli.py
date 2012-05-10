@@ -49,6 +49,7 @@ def run_cli():
     table = PartitionTableAnalyzer(r"\\.\PhysicalDrive0", devicegeo["BytesPerSector"])
     table.printMBR()
     table.printAllParts()
-    print(table.MBRpartitions)
+    print(table.extendedpartitions)
+    print("#: " + str(len(table.extendedpartitions)))
     physicaldisk = PhysicalDiskAnalyzer()
     print(physicaldisk.disks)

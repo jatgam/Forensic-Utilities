@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PartitionTableAnalyzer.py
-# Version: 0.0.2
+# Version: 0.0.2.1
 # By: Shawn Silva (shawn at jatgam dot com)
 # Part of Jatgam Forensic Utilites
 # 
@@ -41,8 +41,10 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                  CHANGELOG                                  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# 05/10/2012        v0.0.2.1 - Updated the extended partition code. Small error
+#                              with passing a certain type.
 # 05/09/2012        v0.0.2 - Added code for extended partitions. Can't test
-#                       until I am on a machine that actually uses them.
+#                            until I am on a machine that actually uses them.
 # 06/23/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 from forensicutilities.math.Conversions import *
@@ -76,6 +78,7 @@ class PartitionTableAnalyzer:
         self.MBRdata = self.__readSector(self.disk, self.sectorsize, 0)
         self.MBRhexlist = self.__listifySector(self.MBRdata)
         self.MBRpartitions = self.__partitionParse(self.MBRhexlist)
+        self.extendedpartitions = self.__extendedPartitionParse(self.MBRpartitions)
         
     def __readSector(self, disk, sectorsize, start):
         with open(disk, 'rb') as f:
@@ -106,7 +109,7 @@ class PartitionTableAnalyzer:
         if extendedPartitions:
             if len(extendedPartitions) > 1:
                 return -1
-            firstEBRstart = HexUtilities(extendedPartitions[0][8:11+1]).littleEndianToDecimal()
+            firstEBRstart = HexUtilities(''.join(extendedPartitions[0][8:11+1])).littleEndianToDecimal()
             ebr = self.__readSector(self.disk, self.sectorsize, firstEBRstart)
             while True:
                 ebrhexlist = self.__listifySector(ebr)
@@ -117,7 +120,7 @@ class PartitionTableAnalyzer:
                     return -1
                 if curextpart[1][4] != "00":
                     extendedPartitions.append(curextpart[1])
-                    nextEBRstart = HexUtilities(curextpart[1][8:11+1]).littleEndianToDecimal()
+                    nextEBRstart = HexUtilities(''.join(curextpart[1][8:11+1])).littleEndianToDecimal()
                     ebr = self.__readSector(self.disk, self.sectorsize, firstEBRstart+nextEBRstart)
                 else:
                     break

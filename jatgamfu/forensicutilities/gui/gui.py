@@ -151,7 +151,7 @@ class StatusBar(Frame):
 
 class AboutDialog(FocusedDialog.FocusedDialog):
     def body(self, master):
-        aboutlabel = Label(master, text="Jatgam Forensic Utilities\nVersion 0.0.1\nCopyright 2011 Shawn Silva")
+        aboutlabel = Label(master, text="Jatgam Forensic Utilities\nVersion 0.0.1\nCopyright 2011-2012 Jatgam Technical Solutions")
         aboutlabel.pack()
         
     def buttonbox(self):

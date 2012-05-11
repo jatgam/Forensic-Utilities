@@ -6,7 +6,7 @@
 # Jatgam Forensic Utilites
 # 
 # Created: 06/27/2011
-# Modified: 06/27/2011
+# Modified: 05/11/2012
 # 
 # A collection of utilities to help gather information on digital evidence.
 # -----------------------------------------------------------------------------
@@ -38,6 +38,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                  CHANGELOG                                  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# 05/11/2012        v0.0.1.1 - Changed command line options to run.
 # 06/27/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 appversion = "0.0.1"
@@ -57,11 +58,14 @@ def cli_main():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(version=appversion, description="Jatgam Forensic Utilities")
     
-    parser.add_argument('-G', action='store_false', default=True, dest='gui', help='Disable GUI and run in CLI mode')
+    parser.add_argument('-C', action='store_true', default=False, dest='cli', help='Run a CLI')
+    parser.add_argument('-G', action='store_true', default=False, dest='gui', help='Run a GUI')
     
     arguments = parser.parse_args()
     
     if arguments.gui:
         gui_main()
-    else:
+    elif arguments.cli:
         cli_main()
+    else:
+        parser.print_help()

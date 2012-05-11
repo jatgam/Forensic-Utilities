@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # jatgamFU.py
-# Version: 0.0.1
+# Version: 0.0.1.1
 # By: Shawn Silva (shawn at jatgam dot com)
 # Jatgam Forensic Utilites
 # 

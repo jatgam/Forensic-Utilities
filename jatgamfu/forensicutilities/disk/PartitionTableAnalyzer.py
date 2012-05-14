@@ -34,8 +34,9 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                    TODO                                     #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#  - Locate and Parse Extended Partitions.
+#  - Gracefully handle two or more extended partitions listed in MBR.
 #  - Error Handling for Finding partition type when printing.
+#  - Print paritions in a visually appealing manner.
 # 
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -108,7 +109,7 @@ class PartitionTableAnalyzer:
                 pass
         if extendedPartitions:
             if len(extendedPartitions) > 1:
-                return -1
+                return -1      #There should never be more that one in the MBR
             firstEBRstart = HexUtilities(''.join(extendedPartitions[0][8:11+1])).littleEndianToDecimal()
             ebr = self.__readSector(self.disk, self.sectorsize, firstEBRstart)
             while True:
@@ -139,6 +140,29 @@ class PartitionTableAnalyzer:
         print("Starting LBA Address:\t" + " ".join(self.MBRhexlist[byterange[0]+8:byterange[0]+11+1]))
         print("Size in Sectors:\t" + " ".join(self.MBRhexlist[byterange[0]+12:byterange[0]+15+1]))
         return
+    
+    def printAllPartitions(self):
+        print("MBR Partitions")
+        for part in self.MBRpartitions:
+            print(" ".join(part))
+            print("Bootable Flag:\t\t" + part[0])
+            print("Starting CHS Address:\t" + " ".join(part[1:3+1]))
+            print("Partition Type:\t\t" + part[4] + " - " + PARTITION_TYPES[part[4]])
+            print("Ending CHS Address:\t" + " ".join(part[5:7+1]))
+            print("Starting LBA Address:\t" + " ".join(part[8:11+1]))
+            print("Size in Sectors:\t" + " ".join(part[12:15+1]))
+        print("Extended Partitions")
+        if self.extendedpartitions:
+            for part in self.extendedpartitions:
+                print(" ".join(part))
+                print("Bootable Flag:\t\t" + part[0])
+                print("Starting CHS Address:\t" + " ".join(part[1:3+1]))
+                print("Partition Type:\t\t" + part[4] + " - " + PARTITION_TYPES[part[4]])
+                print("Ending CHS Address:\t" + " ".join(part[5:7+1]))
+                print("Starting LBA Address:\t" + " ".join(part[8:11+1]))
+                print("Size in Sectors:\t" + " ".join(part[12:15+1]))
+        else:
+            print("N/A")
     
     def printMBR(self):
         numlines = self.sectorsize / 16

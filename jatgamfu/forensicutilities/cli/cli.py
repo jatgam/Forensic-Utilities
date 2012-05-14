@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # cli.py
-# Version: 0.0.1
+# Version: 0.0.1.1
 # By: Shawn Silva (shawn at jatgam dot com)
+# Part of Jatgam Forensic Utilities
 # 
 # Created: 06/13/2011
-# Modified: 06/13/2011
+# Modified: 05/14/2012
 # 
+# A CLI to Jatgam Forensic Utilities.
 # -----------------------------------------------------------------------------
 #
 # 
@@ -36,20 +38,88 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                  CHANGELOG                                  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# 05/14/2012        v0.0.1.1 - Actually creating a CLI, instead of just
+#                           dumping test information.    
 # 08/02/2011        v0.0.1 - Initial script creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+import cmd
+
 from forensicutilities.disk.PartitionTableAnalyzer import *
 from forensicutilities.disk.DiskAnalyzer import PhysicalDiskAnalyzer
 from forensicutilities.windows.ioctl.DeviceIoControl import DeviceIoControl
+from forensicutilities.math.Conversions import *
 
-def run_cli():
-    device = DeviceIoControl(r"\\.\PhysicalDrive0")
-    devicegeo = device.GetDriveGeometry()
+class JatgamFUcli(cmd.Cmd):
+    prompt = "fu: "
+    intro = "\nJatgam Forensic Utilities\nA collection of utilities to help gather information on digital evidence.\n"
     
-    table = PartitionTableAnalyzer(r"\\.\PhysicalDrive0", devicegeo["BytesPerSector"])
-    table.printMBR()
-    table.printAllParts()
-    print(table.extendedpartitions)
-    print("#: " + str(len(table.extendedpartitions)))
-    physicaldisk = PhysicalDiskAnalyzer()
-    print(physicaldisk.disks)
+    disks = PhysicalDiskAnalyzer().disks
+    selecteddisk = None
+    disktable = None
+    
+    def do_listdisks(self, line):
+        """List available disks to analyze."""
+        print("\nDisk ID\t\tOS Identifier\t\tSize\t\tMedia Type")
+        print("-"*77)
+        count = 0
+        for disk in self.disks:
+            disksize = "%.2f" % DecimalUtilities.bytesToGB(disk["DiskSize"])
+            print(str(count) + "\t\t" + disk["Disk"] + "\t" + str(disksize) + " GB" + "\t" + str(disk["MediaType"]))
+            count += 1
+        print("\n")
+        
+    def do_selectdisk(self, line):
+        """Select a disk (by Disk ID) to perform operations on."""
+        try:
+            self.disks[int(line)]
+            self.selecteddisk = int(line)
+            self.disktable = PartitionTableAnalyzer(self.disks[int(line)]["Disk"], self.disks[int(line)]["BytesPerSector"])
+        except:
+            print("Invalid Disk!")
+            
+    def do_diskinfo(self, line):
+        """Print information on the selected disk."""
+        if self.selecteddisk != None:
+            print("\nDisk ID:\t\t" + str(self.selecteddisk))
+            print("OS Identifier:\t\t" + self.disks[self.selecteddisk]["Disk"])
+            print("Media Type:\t\t" + str(self.disks[self.selecteddisk]["MediaType"]))
+            print("Sectors Per Track:\t" + str(self.disks[self.selecteddisk]["SectorsPerTrack"]))
+            print("Tracks Per Cylinder:\t" + str(self.disks[self.selecteddisk]["TracksPerCylinder"]))
+            print("Cylinders:\t\t" + str(self.disks[self.selecteddisk]["Cylinders"]))
+            print("Bytes Per Sector:\t" + str(self.disks[self.selecteddisk]["BytesPerSector"]))
+            print("Size (bytes):\t\t" + str(self.disks[self.selecteddisk]["DiskSize"]))
+            print("Size (GB):\t\t" + "%.2f" % DecimalUtilities.bytesToGB(self.disks[self.selecteddisk]["DiskSize"]))
+            print("\n")
+        else:
+            print("You haven't selected a disk yet!")
+    
+    def do_printmbr(self, line):
+        """Print the MBR of the selected disk."""
+        if self.selecteddisk != None:
+            self.disktable.printMBR()
+        else:
+            print("You haven't selected a disk yet!")
+            
+    def do_listpartitions(self, line):
+        """List all partitions on the selected disk."""
+        if self.selecteddisk != None:
+            self.disktable.printAllPartitions()
+        else:
+            print("You haven't selected a disk yet!")
+    
+    def do_exit(self, line):
+        """Exit the program."""
+        return True
+    
+def run_cli():
+    JatgamFUcli().cmdloop()
+    #device = DeviceIoControl(r"\\.\PhysicalDrive0")
+    #devicegeo = device.GetDriveGeometry()
+    
+    #table = PartitionTableAnalyzer(r"\\.\PhysicalDrive0", devicegeo["BytesPerSector"])
+    #table.printMBR()
+    #table.printAllParts()
+    #print(table.extendedpartitions)
+    #print("#: " + str(len(table.extendedpartitions)))
+    #physicaldisk = PhysicalDiskAnalyzer()
+    #print(physicaldisk.disks)

@@ -46,7 +46,6 @@ import cmd
 
 from forensicutilities.disk.PartitionTableAnalyzer import *
 from forensicutilities.disk.DiskAnalyzer import PhysicalDiskAnalyzer
-from forensicutilities.windows.ioctl.DeviceIoControl import DeviceIoControl
 from forensicutilities.math.Conversions import *
 
 class JatgamFUcli(cmd.Cmd):
@@ -59,6 +58,12 @@ class JatgamFUcli(cmd.Cmd):
     
     def do_listdisks(self, line):
         """List available disks to analyze."""
+        if self.disks == -1:
+            print("Not disks found; possibly not running on a supported system")
+            return
+        elif self.disks == []:
+            print("No disks found.")
+            return
         print("\nDisk ID\t\tOS Identifier\t\tSize\t\tMedia Type")
         print("-"*77)
         count = 0
@@ -113,13 +118,3 @@ class JatgamFUcli(cmd.Cmd):
     
 def run_cli():
     JatgamFUcli().cmdloop()
-    #device = DeviceIoControl(r"\\.\PhysicalDrive0")
-    #devicegeo = device.GetDriveGeometry()
-    
-    #table = PartitionTableAnalyzer(r"\\.\PhysicalDrive0", devicegeo["BytesPerSector"])
-    #table.printMBR()
-    #table.printAllParts()
-    #print(table.extendedpartitions)
-    #print("#: " + str(len(table.extendedpartitions)))
-    #physicaldisk = PhysicalDiskAnalyzer()
-    #print(physicaldisk.disks)

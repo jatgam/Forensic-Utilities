@@ -41,7 +41,9 @@
 # 06/27/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 import platform
-from forensicutilities.windows.ioctl.DeviceIoControl import DeviceIoControl
+
+if platform.system() == "Windows":
+    from forensicutilities.windows.ioctl.DeviceIoControl import DeviceIoControl
 
 class PhysicalDiskAnalyzer:
     def __init__(self):

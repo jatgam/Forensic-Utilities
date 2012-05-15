@@ -44,6 +44,7 @@
 appversion = "0.0.1"
 
 import argparse
+import sys
 
 from forensicutilities.gui import gui
 from forensicutilities.cli import cli
@@ -56,6 +57,15 @@ def cli_main():
     cli.run_cli()
 
 if __name__ == "__main__":
+
+    if sys.hexversion < 0x30202f0:
+        try:
+            print("You must use Python 3.2.2 or greater!")
+            sys.exit()
+        except:
+            print "You must use Python 3.2.2 or greater!"
+            sys.exit()
+    
     parser = argparse.ArgumentParser(version=appversion, description="Jatgam Forensic Utilities")
     
     parser.add_argument('-C', action='store_true', default=False, dest='cli', help='Run a CLI')

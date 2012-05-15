@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # jatgamFU.py
-# Version: 0.0.1.1
+# Version: 0.0.1.2
 # By: Shawn Silva (shawn at jatgam dot com)
 # Jatgam Forensic Utilites
 # 
 # Created: 06/27/2011
-# Modified: 05/11/2012
+# Modified: 05/15/2012
 # 
 # A collection of utilities to help gather information on digital evidence.
 # -----------------------------------------------------------------------------
@@ -38,18 +38,38 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                  CHANGELOG                                  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# 05/15/2012        v0.0.1.2 - Added some error handling and version checking.
 # 05/11/2012        v0.0.1.1 - Changed command line options to run.
 # 06/27/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-appversion = "0.0.1"
+appversion = "0.0.1.2"
+
+PY_MIN_VERSION = 0x30202f0
 
 import argparse
 import sys
 
-from forensicutilities.gui import gui
-from forensicutilities.cli import cli
+import_error = False
+try:
+    from forensicutilities.gui import gui
+    from forensicutilities.cli import cli
+except ImportError as ex:
+    print("Fatal Error during import process: " + str(ex))
+    import_error = True
 
 
+def check_system():
+    """Makes sure version and imports worked before starting"""
+    if sys.hexversion < PY_MIN_VERSION:
+        try:
+            print("You must use Python 3.2.2 or greater!")
+        except:
+            exec('print "You must use Python 3.2.2 or greater!"')
+        sys.exit()
+    if import_error:
+        sys.exit()
+    return
+    
 def gui_main():
     gui.run_gui()
 
@@ -57,14 +77,7 @@ def cli_main():
     cli.run_cli()
 
 if __name__ == "__main__":
-
-    if sys.hexversion < 0x30202f0:
-        try:
-            print("You must use Python 3.2.2 or greater!")
-            sys.exit()
-        except:
-            print "You must use Python 3.2.2 or greater!"
-            sys.exit()
+    check_system()
     
     parser = argparse.ArgumentParser(version=appversion, description="Jatgam Forensic Utilities")
     

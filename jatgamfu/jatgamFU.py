@@ -1,21 +1,12 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # jatgamFU.py
-# Version: 0.0.1.2
-# By: Shawn Silva (shawn at jatgam dot com)
 # Jatgam Forensic Utilites
 # 
 # Created: 06/27/2011
-# Modified: 05/15/2012
+# Modified: 05/30/2013
 # 
-# A collection of utilities to help gather information on digital evidence.
-# -----------------------------------------------------------------------------
-#
-# 
-# REQUIREMENTS:
-# Python 3.2.x
-# 
-# Copyright (C) 2011-2012  Jatgam Technical Solutions
+# Copyright (C) 2011-2013  Jatgam Technical Solutions
 # ---------------------------------------------------
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,18 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                                    TODO                                     #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#  - 
-# 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                                  CHANGELOG                                  #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 05/15/2012        v0.0.1.2 - Added some error handling and version checking.
-# 05/11/2012        v0.0.1.1 - Changed command line options to run.
-# 06/27/2011        v0.0.1 - Initial creation.
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-appversion = "0.0.1.2"
+appversion = "0.0.1.005"
 
 PY_MIN_VERSION = 0x30202f0
 
@@ -79,10 +59,11 @@ def cli_main():
 if __name__ == "__main__":
     check_system()
     
-    parser = argparse.ArgumentParser(version=appversion, description="Jatgam Forensic Utilities")
+    parser = argparse.ArgumentParser(description="Jatgam Forensic Utilities")
     
-    parser.add_argument('-C', action='store_true', default=False, dest='cli', help='Run a CLI')
-    parser.add_argument('-G', action='store_true', default=False, dest='gui', help='Run a GUI')
+    parser.add_argument('-v', action='store_true', default=False, dest='printversion', help='Print the application version and Exit')
+    parser.add_argument('-c', action='store_true', default=False, dest='cli', help='Run a CLI')
+    parser.add_argument('-g', action='store_true', default=False, dest='gui', help='Run a GUI')
     
     arguments = parser.parse_args()
     
@@ -90,5 +71,7 @@ if __name__ == "__main__":
         gui_main()
     elif arguments.cli:
         cli_main()
+    elif arguments.printversion:
+        print(appversion)
     else:
         parser.print_help()

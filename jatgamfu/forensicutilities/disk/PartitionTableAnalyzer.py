@@ -1,22 +1,12 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PartitionTableAnalyzer.py
-# Version: 0.0.2.1
-# By: Shawn Silva (shawn at jatgam dot com)
 # Part of Jatgam Forensic Utilites
 # 
 # Created: 06/23/2011
 # Modified: 05/09/2012
 # 
-# Will grab the first sector from physical disks and images and
-# parse out partition information.
-# -----------------------------------------------------------------------------
-#
-# 
-# REQUIREMENTS:
-# Python 3.2.x
-# 
-# Copyright (C) 2011-2012  Jatgam Technical Solutions
+# Copyright (C) 2011-2013  Jatgam Technical Solutions
 # ---------------------------------------------------
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,22 +21,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                                    TODO                                     #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#  - Gracefully handle two or more extended partitions listed in MBR.
-#  - Error Handling for Finding partition type when printing.
-#  - Print paritions in a visually appealing manner.
-# 
-# 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                                  CHANGELOG                                  #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 05/10/2012        v0.0.2.1 - Updated the extended partition code. Small error
-#                              with passing a certain type.
-# 05/09/2012        v0.0.2 - Added code for extended partitions. Can't test
-#                            until I am on a machine that actually uses them.
-# 06/23/2011        v0.0.1 - Initial creation.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 from forensicutilities.math.Conversions import *
 

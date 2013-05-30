@@ -1,21 +1,12 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # conversions.py
-# Version: 0.0.2
-# By: Shawn Silva (shawn at jatgam dot com)
 # Part of Jatgam Forensic Utilites
 # 
 # Created: 06/27/2011
 # Modified: 05/09/2012
 # 
-# Various functions for working with HEX/Decimal/Binary
-# -----------------------------------------------------------------------------
-#
-# 
-# REQUIREMENTS:
-# Python 3.2.x
-# 
-# Copyright (C) 2011-2012  Jatgam Technical Solutions
+# Copyright (C) 2011-2013  Jatgam Technical Solutions
 # ---------------------------------------------------
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,16 +22,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                                    TODO                                     #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#  -  Need to completely redo the structure as this isn't sane.
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                                  CHANGELOG                                  #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 05/09/2012        v0.0.2 - Added littleEndianToDecimal
-# 06/27/2011        v0.0.1 - Initial creation.
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 
 class HexUtilities:
     def __init__(self, hexstr):
